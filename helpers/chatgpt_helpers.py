@@ -7,6 +7,7 @@ def get_chat_gpt_response(prompt):
             }
         ],
         model="gpt-4o-mini",
+        response_format={ "type": "json_object" }
     )
 
     return chat_completion.choices[0].message.content
