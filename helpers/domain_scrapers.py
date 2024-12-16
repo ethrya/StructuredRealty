@@ -8,7 +8,12 @@ from bs4 import BeautifulSoup
 
 
 def get_element_html_by_class(driver, class_name):
-    return driver.find_element(by = By.CLASS_NAME, value = class_name).get_attribute("innerHTML")
+    try:
+        element_html = driver.find_element(by = By.CLASS_NAME, value = class_name).get_attribute("innerHTML")
+    except selenium.common.exceptions.NoSuchElementException:
+        element_html = ""
+    
+    return element_html
 
 def get_bed_bath_park_data(element):
     try:
@@ -46,12 +51,12 @@ def get_listing_info(driver, listing_link):
     # Get the elements saved above and tidy into a usable format
     listing_info = {"address": address,
             "sale_price": re.search("\$[\d\,]+", sale).group(),
-            "sale_date": re.sub("^Sold by (\D+)(\d{1,2}.+20\d{2})$", "\g<2>", sale_method_date),
-            "sale_method": re.sub("^Sold by (\D+)(\d{1,2}.+20\d{2}$)", "\g<1>", sale_method_date),
+            "sale_date": re.sub("^Sold (at|by) (\D+)(\d{1,2}.+20\d{2})$", "\g<2>", sale_method_date),
+            "sale_method": re.sub("^Sold (at|by) (\D+)(\d{1,2}.+20\d{2}$)", "\g<1>", sale_method_date),
             "dwelling_type": dwelling_type.get_attribute("innerHTML"),
-            "n_beds": re.search("^\d{1}", element[0].get_attribute("innerHTML")).group(),
-            "n_bath": re.search("^\d{1}", element[1].get_attribute("innerHTML")).group(),
-            "n_park": re.search("^\d{1}", element[2].get_attribute("innerHTML")).group(),
+            "n_beds": get_bed_bath_park_data(element[0]),
+            "n_bath": get_bed_bath_park_data(element[1]),
+            "n_park": get_bed_bath_park_data(element[2]),
             "property_desc_text": BeautifulSoup(property_desc, "lxml").text
     }
 

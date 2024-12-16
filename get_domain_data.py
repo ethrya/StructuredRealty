@@ -12,16 +12,20 @@ from selenium.webdriver.chrome.service import Service
 import pandas as pd
 from pyarrow import Table
 from pyarrow import parquet as pq
+import pickle
 import time
 import datetime
 
 from helpers.domain_scrapers import get_bed_bath_park_data, get_element_html_by_class, get_listing_info
 
 
-suburbs = "campbell-act-2612,reid-act-2612,braddon-act-2612,ainslie-act-2602,dickson-act-2602,lyneham-act-2602,o-connor-act-2602,turner-act-2612,downer-act-2602,watson-act-2602"
-domain_base_page = "https://www.domain.com.au/sold-listings/?suburb=" + suburbs +"&excludepricewithheld=1&page="
+current_time = time.strftime("%y%m%d_%H%M")
 
-n_pages = 40
+suburbs = "campbell-act-2612,reid-act-2612,braddon-act-2612,ainslie-act-2602,dickson-act-2602,lyneham-act-2602,o-connor-act-2602,turner-act-2612,downer-act-2602,watson-act-2602"
+conditions = "&bedrooms=2&excludepricewithheld=1"
+domain_base_page = "https://www.domain.com.au/sold-listings/?suburb=" + suburbs + conditions +"&page="
+
+n_pages = 15
 
 domain_pages = [domain_base_page + str(i+1) for i in range(n_pages)]
 
@@ -62,8 +66,12 @@ for base_page in domain_pages:
     for link in listing_links:
         listing_info = get_listing_info(driver, link)
         property_stats.append(listing_info)
+    
+    with open("outdata/property_intermediate_bin.pickle", "wb") as fp:
+        pickle.dump(property_stats, fp)
+    
 
 property_stats_df = pd.DataFrame(property_stats)
 
-property_stats_df.to_parquet("outdata/property_data_241215_2050.parquet")
-property_stats_df.to_csv("outdata/property_data_241215_2050.csv")
+property_stats_df.to_parquet("outdata/property_data" + current_time + ".parquet")
+property_stats_df.to_csv("outdata/property_data_" + current_time + ".csv")
