@@ -1,4 +1,8 @@
-import os
+"""
+Get real estate listing data for a set of paramaters and locations.
+Selenium is used to scrape lisings from domain.com.au and the key details (e.g. sale dates, 
+prices, number of beedrooms) and property description are recorded.
+"""
 
 import re
 from bs4 import BeautifulSoup
@@ -14,39 +18,54 @@ from pyarrow import Table
 from pyarrow import parquet as pq
 import pickle
 import time
-import datetime
-from datetime import datetime
 
 from helpers.domain_scrapers import get_bed_bath_park_data, get_element_html_by_class, get_listing_info
 
-
-current_time = time.strftime("%y%m%d_%H%M")
-
+# Parameters to set
+# Set which suburbs you would like to review in the format used by domain.
+# This format is suburb-state-postcode. Each suburb is separated by a space
 suburbs = "campbell-act-2612,reid-act-2612,braddon-act-2612,ainslie-act-2602,\
     dickson-act-2602,lyneham-act-2602,o-connor-act-2602,\
     turner-act-2612,downer-act-2602,watson-act-2602"
+# Add in any additional conditions, such as the number of bedrooms or bathrooms.
+# This may only work if excludepricewithheld-=1
 conditions = "&bedrooms=2&excludepricewithheld=1"
+
 domain_base_page = "https://www.domain.com.au/sold-listings/?suburb=" + suburbs + conditions +"&page="
 
+# How many pages of listings do you want to review?
+# One page here includes links to many individual listings
 n_pages = 20
 
+
+# Get a list of pages
 domain_pages = [domain_base_page + str(i+1) for i in range(n_pages)]
 
+current_time = time.strftime("%y%m%d_%H%M")
+
+
+# Setup Selenium driver
 
 print("Initialising")
 
+# This needs to point to your selenium driver's location
 service = Service(executable_path = '/usr/local/bin/geckodriver')
 
 options = webdriver.FirefoxOptions()
+# This needs to point to the firefox location.
 options.binary_location = "/Applications/Firefox.app/Contents/MacOS/firefox"
 driver = webdriver.Firefox(service=service, options=options)
 driver.set_page_load_timeout(15)
 
+
+# Extract data for each page of listings
 property_stats = []
 
 for base_page in domain_pages:
 
     print("Navigating to domain: " + base_page)
+    # Sometimes, domain.com.au takes a long time to fully load, but the information is there.
+    # This allows the code to continue after it times out.
     try:
         driver.get(base_page)
     except selenium.common.exceptions.TimeoutException:
@@ -66,6 +85,7 @@ for base_page in domain_pages:
     # Get rid of duplicate links
     listing_links = list(set(listing_links))
 
+    # Not get data for each sold listing
     for link in listing_links:
         try:
             listing_info = get_listing_info(driver, link)

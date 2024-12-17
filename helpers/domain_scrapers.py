@@ -1,3 +1,5 @@
+# These functions are helpers for the get_domain_data script
+# They extract the required elements and are some reusable code.
 import selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -8,6 +10,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 
+# helper to get html data
 def get_element_html_by_class(driver, class_name):
     try:
         element_html = driver.find_element(by = By.CLASS_NAME, value = class_name).get_attribute("innerHTML")
@@ -16,6 +19,8 @@ def get_element_html_by_class(driver, class_name):
     
     return element_html
 
+
+# Get data on bed, bath, parking from an element which includes this info
 def get_bed_bath_park_data(element):
     try:
         n = re.search("^\d{1}", element.get_attribute("innerHTML")).group()
@@ -24,6 +29,7 @@ def get_bed_bath_park_data(element):
 
     return int(n)
 
+# For a listing_link, navagte to the link and extract key data.
 def get_listing_info(driver, listing_link):
     # Navigate to listing
     print("Navigating to listing: " + listing_link)
