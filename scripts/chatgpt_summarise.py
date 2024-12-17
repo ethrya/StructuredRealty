@@ -7,9 +7,6 @@ import json
 
 property_data = pd.read_parquet("outdata/property_data241216_0752.parquet", engine = "pyarrow")
 
-def run_chatgpt():
-    print(openai_key)
-
 client = OpenAI(
     api_key = openai_key
 )
@@ -27,17 +24,16 @@ base_prompt = "I will pass you a real estate listing.\
         external_size].\
     The listing is:"
 
-listings_description = property_data["property_desc_text"]
-
 listing_summary = []
 
 #chat_gpt_output = get_chat_gpt_response(base_prompt+listing)
 
 
-for listing in listings_description[0:10]:
-    chat_gpt_output = get_chat_gpt_response(base_prompt+listing)
+for index, row in property_data.iloc[0:5].iterrows():
+    chat_gpt_output = get_chat_gpt_response(base_prompt+row["property_desc_text"])
     listing_summary.append(json.loads(chat_gpt_output))
 
 listing_df  = pd.DataFrame.from_records(listing_summary)
 
-listing_df.to_csv("outdata/listing_info.csv")
+listing_combined = pd.concat([property_data, listing_df], axis = 1)
+listing_combined.to_csv("outdata/listing_info.csv")

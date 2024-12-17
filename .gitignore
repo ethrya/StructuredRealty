@@ -1,6 +1,9 @@
 # API key
 helpers/openai_key.py
 
+# data
+outdata/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
