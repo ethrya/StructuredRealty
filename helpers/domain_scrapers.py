@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 
 import re
 import time
+from datetime import datetime
 from bs4 import BeautifulSoup
 
 
@@ -21,7 +22,7 @@ def get_bed_bath_park_data(element):
     except AttributeError:
         n = "0"
 
-    return n
+    return int(n)
 
 def get_listing_info(driver, listing_link):
     # Navigate to listing
@@ -41,18 +42,22 @@ def get_listing_info(driver, listing_link):
     element = key_details.find_elements(by = By.CLASS_NAME, value = "css-lvv8is")
     dwelling_type = key_details.find_element(by = By.CLASS_NAME, value="css-in3yi3")
 
-    # There is a read more button that hides additional property lising into and needs to be clicked
-    read_more_button = driver.find_element(by = By.CLASS_NAME, value = "css-1pn4141")
-    read_more_button.click()
-    time.sleep(5)
+    # There is normally a read more button that hides additional property lising into and needs to be clicked
+    try:
+        read_more_button = driver.find_element(by = By.CLASS_NAME, value = "css-1pn4141")
+        read_more_button.click()
+        time.sleep(5)
+    except selenium.common.exceptions.NoSuchElementException:
+        pass
 
     property_desc = get_element_html_by_class(driver, "css-bq4jj8")
 
     # Get the elements saved above and tidy into a usable format
     listing_info = {"address": address,
             "sale_price": re.search("\$[\d\,]+", sale).group(),
-            "sale_date": re.sub("^Sold (at|by) (\D+)(\d{1,2}.+20\d{2})$", "\g<2>", sale_method_date),
-            "sale_method": re.sub("^Sold (at|by) (\D+)(\d{1,2}.+20\d{2}$)", "\g<1>", sale_method_date),
+            "sale_date": datetime.strptime(re.sub("^Sold (\D+)(\d{1,2}.+20\d{2})$", "\g<2>", sale_method_date),
+                                           "%d %b %Y").date(),
+            "sale_method": re.sub("^Sold (\D+)(\d{1,2}.+20\d{2}$)", "\g<1>", sale_method_date),
             "dwelling_type": dwelling_type.get_attribute("innerHTML"),
             "n_beds": get_bed_bath_park_data(element[0]),
             "n_bath": get_bed_bath_park_data(element[1]),

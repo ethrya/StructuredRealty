@@ -15,17 +15,20 @@ from pyarrow import parquet as pq
 import pickle
 import time
 import datetime
+from datetime import datetime
 
 from helpers.domain_scrapers import get_bed_bath_park_data, get_element_html_by_class, get_listing_info
 
 
 current_time = time.strftime("%y%m%d_%H%M")
 
-suburbs = "campbell-act-2612,reid-act-2612,braddon-act-2612,ainslie-act-2602,dickson-act-2602,lyneham-act-2602,o-connor-act-2602,turner-act-2612,downer-act-2602,watson-act-2602"
+suburbs = "campbell-act-2612,reid-act-2612,braddon-act-2612,ainslie-act-2602,\
+    dickson-act-2602,lyneham-act-2602,o-connor-act-2602,\
+    turner-act-2612,downer-act-2602,watson-act-2602"
 conditions = "&bedrooms=2&excludepricewithheld=1"
 domain_base_page = "https://www.domain.com.au/sold-listings/?suburb=" + suburbs + conditions +"&page="
 
-n_pages = 15
+n_pages = 20
 
 domain_pages = [domain_base_page + str(i+1) for i in range(n_pages)]
 
@@ -64,12 +67,17 @@ for base_page in domain_pages:
     listing_links = list(set(listing_links))
 
     for link in listing_links:
-        listing_info = get_listing_info(driver, link)
-        property_stats.append(listing_info)
-    
+        try:
+            listing_info = get_listing_info(driver, link)
+            property_stats.append(listing_info)
+        except selenium.common.exceptions.NoSuchElementException:
+            print("Something with wrong with: " & link)
+
     with open("outdata/property_intermediate_bin.pickle", "wb") as fp:
         pickle.dump(property_stats, fp)
     
+
+driver.quit()
 
 property_stats_df = pd.DataFrame(property_stats)
 
