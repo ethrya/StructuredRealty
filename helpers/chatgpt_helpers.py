@@ -1,4 +1,4 @@
-def get_chat_gpt_response(prompt):
+def get_chat_gpt_response(client, prompt):
     chat_completion = client.chat.completions.create(
         messages=[
             {
