@@ -41,16 +41,19 @@ def get_listing_info(driver, listing_link):
     time.sleep(10)
 
     # Get key listing stats
-    address = get_element_html_by_class(driver, "css-164r41r")
+    address = get_element_html_by_class(driver, "css-hkh81z")
+    # This is the line with the sale status and price "e.g. SOLD - $600,000"
     sale = get_element_html_by_class(driver, "css-twgrok")
-    sale_method_date = get_element_html_by_class(driver, "css-h9g9i3")
-    key_details = driver.find_element(by = By.CLASS_NAME, value = "css-1dtnjt5")
-    element = key_details.find_elements(by = By.CLASS_NAME, value = "css-lvv8is")
-    dwelling_type = key_details.find_element(by = By.CLASS_NAME, value="css-in3yi3")
+    sale_method_date = get_element_html_by_class(driver, "css-1ycmcro")
+    # This is the element that contains the bed/bath/car status and the dwelling type. We do this because the css 
+    #     selectors are reefered to in other places too
+    key_details = driver.find_element(by = By.CLASS_NAME, value = "css-1o7d3sk")
+    element = key_details.find_elements(by = By.CSS_SELECTOR, value = "span[data-testid='property-features-text']")
+    dwelling_type = key_details.find_element(by = By.CLASS_NAME, value="css-uzo9ee")
 
     # There is normally a read more button that hides additional property lising into and needs to be clicked
     try:
-        read_more_button = driver.find_element(by = By.CLASS_NAME, value = "css-1pn4141")
+        read_more_button = driver.find_element(by = By.CLASS_NAME, value = "css-h5clp0")
         read_more_button.click()
         time.sleep(5)
     except selenium.common.exceptions.NoSuchElementException:

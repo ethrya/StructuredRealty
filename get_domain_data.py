@@ -25,8 +25,8 @@ from helpers.domain_scrapers import get_bed_bath_park_data, get_element_html_by_
 # Set which suburbs you would like to review in the format used by domain.
 # This format is suburb-state-postcode. Each suburb is separated by a space
 suburbs = "campbell-act-2612,reid-act-2612,braddon-act-2612,ainslie-act-2602,\
-    dickson-act-2602,lyneham-act-2602,o-connor-act-2602,\
-    turner-act-2612,downer-act-2602,watson-act-2602"
+dickson-act-2602,lyneham-act-2602,o-connor-act-2602,\
+turner-act-2612,downer-act-2602,watson-act-2602"
 # Add in any additional conditions, such as the number of bedrooms or bathrooms.
 # This may only work if excludepricewithheld-=1
 conditions = "&bedrooms=2&excludepricewithheld=1"
@@ -35,7 +35,7 @@ domain_base_page = "https://www.domain.com.au/sold-listings/?suburb=" + suburbs 
 
 # How many pages of listings do you want to review?
 # One page here includes links to many individual listings
-n_pages = 20
+n_pages = 1
 
 
 # Get a list of pages
