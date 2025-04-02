@@ -19,6 +19,16 @@ def get_element_html_by_class(driver, class_name):
     
     return element_html
 
+def get_element_html_by_testid(driver, data_testid, tag_name):
+    try:
+        # Define the CSS selector targeting the data-testid attribute
+        # Format: tag[attribute='value']
+        css_selector = tag_name + "[data-testid='" + data_testid + "']"        
+        element_html = driver.find_element(by = By.CSS_SELECTOR, value = css_selector).get_attribute("innerHTML")
+    except selenium.common.exceptions.NoSuchElementException:
+        element_html = ""
+    
+    return element_html
 
 # Get data on bed, bath, parking from an element which includes this info
 def get_bed_bath_park_data(element):
@@ -28,6 +38,13 @@ def get_bed_bath_park_data(element):
         n = "0"
 
     return int(n)
+
+
+def get_text_from_html_string(html_string):
+    soup = BeautifulSoup(html_string, "html.parser")
+    text_content_bs = soup.get_text(separator=' ', strip=True)
+
+    return text_content_bs
 
 # For a listing_link, navagte to the link and extract key data.
 def get_listing_info(driver, listing_link):
@@ -41,19 +58,20 @@ def get_listing_info(driver, listing_link):
     time.sleep(10)
 
     # Get key listing stats
-    address = get_element_html_by_class(driver, "css-hkh81z")
+    address = get_element_html_by_testid(driver, "listing-details__button-copy-wrapper", "div")
     # This is the line with the sale status and price "e.g. SOLD - $600,000"
-    sale = get_element_html_by_class(driver, "css-twgrok")
-    sale_method_date = get_element_html_by_class(driver, "css-1ycmcro")
+    sale = get_element_html_by_testid(driver, "listing-details__summary-title", "div")
+    sale_method_date = get_element_html_by_testid(driver, "listing-details__listing-tag", "span")
     # This is the element that contains the bed/bath/car status and the dwelling type. We do this because the css 
     #     selectors are reefered to in other places too
-    key_details = driver.find_element(by = By.CLASS_NAME, value = "css-1o7d3sk")
-    element = key_details.find_elements(by = By.CSS_SELECTOR, value = "span[data-testid='property-features-text']")
-    dwelling_type = key_details.find_element(by = By.CLASS_NAME, value="css-uzo9ee")
+    #key_details = driver.find_element(by = By.CSS_SELECTOR, value = "span[data-testid='property-features']")
+    element = driver.find_elements(by = By.CSS_SELECTOR, value = "span[data-testid='property-features-text-container']")
+    dwelling_type = get_element_html_by_testid(driver, "listing-summary-property-type", "div")
 
     # There is normally a read more button that hides additional property lising into and needs to be clicked
     try:
-        read_more_button = driver.find_element(by = By.CLASS_NAME, value = "css-h5clp0")
+        read_more_button_selector = "div[data-testid='listing-details__description-button']"  
+        read_more_button = driver.find_element(by = By.CSS_SELECTOR, value = read_more_button_selector)
         read_more_button.click()
         time.sleep(5)
     except selenium.common.exceptions.NoSuchElementException:
@@ -62,16 +80,16 @@ def get_listing_info(driver, listing_link):
     property_desc = get_element_html_by_class(driver, "css-bq4jj8")
 
     # Get the elements saved above and tidy into a usable format
-    listing_info = {"address": address,
+    listing_info = {"address": get_text_from_html_string(address),
             "sale_price": re.search("\$[\d\,]+", sale).group(),
             "sale_date": datetime.strptime(re.sub("^Sold (\D+)(\d{1,2}.+20\d{2})$", "\g<2>", sale_method_date),
                                            "%d %b %Y").date(),
             "sale_method": re.sub("^Sold (\D+)(\d{1,2}.+20\d{2}$)", "\g<1>", sale_method_date),
-            "dwelling_type": dwelling_type.get_attribute("innerHTML"),
+            "dwelling_type": get_text_from_html_string(dwelling_type),
             "n_beds": get_bed_bath_park_data(element[0]),
             "n_bath": get_bed_bath_park_data(element[1]),
             "n_park": get_bed_bath_park_data(element[2]),
-            "property_desc_text": BeautifulSoup(property_desc, "lxml").text
+            "property_desc_text": get_text_from_html_string(property_desc)
     }
 
     return listing_info
