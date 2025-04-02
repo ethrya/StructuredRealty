@@ -3,6 +3,8 @@
 import selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 import re
 import time
@@ -50,10 +52,13 @@ def get_text_from_html_string(html_string):
 def get_listing_info(driver, listing_link):
     # Navigate to listing
     print("Navigating to listing: " + listing_link)
-    try: 
-        driver.get(listing_link)
+    driver.get(listing_link)
+    try:
+        wait = WebDriverWait(driver, 20)
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div[data-testid='listing-details__button-copy-wrapper']")))
     except selenium.common.exceptions.TimeoutException:
-        print("Force timed out... continuing")
+        print("Timed out waiting for the required element to be present.")
+
 
     time.sleep(10)
 
