@@ -1,0 +1,6 @@
+
+openai
+pandas
+selenium
+beautifulsoup4  # Imported as 'bs4' but installed as 'beautifulsoup4'
+pyarrow         # Needed by pandas for reading/writing Parquet files efficiently
