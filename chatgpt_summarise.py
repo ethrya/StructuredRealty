@@ -14,10 +14,10 @@ print("Loading data and setting up")
 
 # load in property data to examine
 # This could be created using `get_domain_data.py``
-property_data_file = "property_data_241217_1435.parquet"
+property_data_file = "property_data_250520_0032.parquet"
 property_data = pd.read_parquet("outdata/" + property_data_file, engine = "pyarrow")
 
-max_listings = min(1000, len(property_data))
+max_listings = min(10000000, len(property_data))
 
 
 client = OpenAI(
@@ -25,13 +25,14 @@ client = OpenAI(
 )
 
 base_prompt = "I will pass you a real estate listing.\
-    From the listing, the following measures: strata costs, rates, rental estimate, internal size, external size, energy efficiency rating (EER) and year built.\
+    From the listing, determine the following measures: strata costs, rates, rental estimate, internal size, external size, type of outdoor space, energy efficiency rating (EER) and year built.\
     For each field, value should be a number. If the listing refers to a range of numbers, use the smallest. Don't include the unit in that field.\
     For the strata costs, include the total of strata, body corporate, admin and sinking fund costs, if they are stated.\
     For the strata costs, rates and rental estimates, include a column with the time period referred to in the listing (e.g. week, quarter or year).\
     If you are unsure or there is no mention of the item set the value to null.\
-    Return the data as a json array with the following properties: [strata_costs, strata_cost_unit, rates, rates_unit,\
-        rental_estimate, rental_estimate_unit, internal_size, external_size, EER, year_built].\
+    The type of outdoor space should be one of: garden, courtyard, balcony, none, unsure. If multiple, pick the first option in the list.\
+    Return the data as a json object with the following properties: [strata_costs, strata_cost_unit, rates, rates_unit,\
+        rental_estimate, rental_estimate_unit, internal_size, external_size, outdoor_type, EER, year_built].\
     The listing is:"
 
 listing_summary = []

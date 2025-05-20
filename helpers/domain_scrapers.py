@@ -75,7 +75,7 @@ def get_listing_info(driver, listing_link):
 
     # There is normally a read more button that hides additional property lising into and needs to be clicked
     try:
-        read_more_button_selector = "div[data-testid='listing-details__description-button']"  
+        read_more_button_selector = "button[data-testid='listing-details__description-button']"  
         read_more_button = driver.find_element(by = By.CSS_SELECTOR, value = read_more_button_selector)
         read_more_button.click()
         time.sleep(5)

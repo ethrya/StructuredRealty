@@ -28,7 +28,7 @@ from helpers.domain_scrapers import get_bed_bath_park_data, get_element_html_by_
 CONFIG = {
     "suburbs": "campbell-act-2612,reid-act-2612,braddon-act-2612,ainslie-act-2602,dickson-act-2602,lyneham-act-2602,o-connor-act-2602,turner-act-2612,downer-act-2602,watson-act-2602,hackett-act-2602",
     "conditions": "&bedrooms=2&excludepricewithheld=1", # Keep as string or parse if needed
-    "n_pages": 1, # How many search results pages to scrape
+    "n_pages": 50, # How many search results pages to scrape
     "geckodriver_path": '/usr/local/bin/geckodriver', # Adjust path as needed
     "firefox_path": "/Applications/Firefox.app/Contents/MacOS/firefox", # Adjust path as needed
     "output_dir": "outdata", # Ensure this directory exists
@@ -81,7 +81,6 @@ def scrape_single_listing(link: str, config_dict: dict) -> Optional[Dict[str, An
         # --- Setup driver inside the worker ---
         service = FirefoxService(executable_path=config_dict['geckodriver_path'])
         options = FirefoxOptions()
-        options.binary_location = config_dict['firefox_path']
         options.page_load_strategy = config_dict['worker_page_load_strategy']
 
         if config_dict['worker_headless']:
@@ -203,7 +202,7 @@ if __name__ == "__main__":
                     if result: # Only append successful results (worker returns dict)
                         property_stats.append(result)
                     # Simple progress indicator
-                    print(f"PROGRESS: Processed {count} / {len(all_links)} listings... (Collected {len(property_stats)} successful)", end='\r')
+                    print(f"PROGRESS: Processed {count} / {len(all_links)} listings... (Collected {len(property_stats)} successful)", end='\n')
                 print("\nParallel processing finished.") # Newline after progress
 
         except Exception as e:
