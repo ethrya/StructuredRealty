@@ -28,7 +28,7 @@ from helpers.domain_scrapers import get_bed_bath_park_data, get_element_html_by_
 CONFIG = {
     "suburbs": "campbell-act-2612,reid-act-2612,braddon-act-2612,ainslie-act-2602,dickson-act-2602,lyneham-act-2602,o-connor-act-2602,turner-act-2612,downer-act-2602,watson-act-2602,hackett-act-2602",
     "conditions": "&bedrooms=2&excludepricewithheld=1", # Keep as string or parse if needed
-    "n_pages": 50, # How many search results pages to scrape
+    "n_pages": 1, # How many search results pages to scrape
     "geckodriver_path": '/usr/local/bin/geckodriver', # Adjust path as needed
     "firefox_path": "/Applications/Firefox.app/Contents/MacOS/firefox", # Adjust path as needed
     "output_dir": "outdata", # Ensure this directory exists
